@@ -1,0 +1,156 @@
+<html>
+  <head>
+    <title>Calender</title>
+    <style>
+        *{
+            margin: 0 auto;
+        }
+      #calender {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto auto;
+        background-color: #2196f3;
+        padding: 10px;
+      }
+      .empty {
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        font-size: 30px;
+        text-align: center;
+      }
+      .day {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        font-size: 30px;
+        text-align: center;
+      }
+      .date {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        width: 5rem;
+        font-size: 30px;
+        text-align: center;
+      }
+      .task{
+        background-color: tomato;
+      }
+      #modal-container {
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgb(0, 0, 0, 0.5);
+        display: none;
+      }
+      #modal {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid pink;
+        padding: 2rem 4rem;
+        background-color: white;
+        z-index: 3;
+      }
+    </style>
+    <!-- CSS only -->
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    /> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+      integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+      crossorigin="anonymous"
+    ></script> -->
+  </head>
+  <body onload="fetchEvents()">
+    <form action="/" method="GET">
+      <input type="text" name="month" /><br />
+      <input type="text" name="year" /><br />
+      <input type="submit" value="go" />
+    </form>
+    <div id="modal-container" onclick="removeModal()">
+      <span id="modal">Hello</span>
+    </div>
+    <div>
+      <h1>Month:&nbsp;<%= month + 1 %></h1>
+      <h1>Year:&nbsp;<%= year %></h1>
+      <h1>Start day:&nbsp;<%= startDay %></h1>
+      <h1>No of days:&nbsp;<%= noOfDays %></h1>
+      <div id="events"></div>
+    </div>
+
+    <div id="events"></div>
+
+    <div id="calender">
+      <% for(let i = 0; i < days.length; i++){ %>
+      <div class="day"><%= days[i] %></div>
+      <% } %> <% for(let i = 0; i < startDay; i++){ %>
+      <div class="empty">&nbsp;</div>
+      <% } %> <% for(let i = 0; i < noOfDays; i++){ %>
+      <div class="date" data-id="<%=i%>"><%= i+1 %></div>
+      <% } %>
+    </div>
+    <script>
+      function fetchEvents() {
+        let storage = localStorage.getItem("event") || JSON.stringify([]);
+        storage = JSON.parse(storage);
+        let string =
+          "" +
+          storage.map((el) => {
+            return `<span>[Date&nbsp;${el.date}</span><span>&nbsp;month&nbsp;${el.month}</span><span>&nbsp;Event&nbsp;${el.event}]</span>`;
+          });
+        document.getElementById("events").innerHTML = string;
+      }
+
+      $("div.date").click(function () {
+        var id = this.dataset.id;
+        const event = prompt("Enter your task");
+        if (!event) {
+          return;
+        }
+        const month = "<%=month%>";
+        const result = {
+          date: parseInt(id, 10) + 1,
+          month: parseInt(month, 10) + 1,
+          event: event,
+        };
+        let storage = localStorage.getItem("event") || JSON.stringify([]);
+        storage = JSON.parse(storage);
+        const index = storage.findIndex(
+          (val) => val.date === result.date && val.month == result.month
+        );
+        if (index > -1) {
+          storage.splice(index, 1);
+        }
+        storage.push(result);
+        storage = JSON.stringify(storage);
+        localStorage.setItem("event", storage);
+        fetchEvents();
+        showModal();
+      });
+      function removeModal() {
+        document.getElementById("modal-container").style.display = "none";
+      }
+      function showModal() {
+        document.getElementById("modal-container").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
